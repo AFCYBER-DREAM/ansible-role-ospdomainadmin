@@ -1,0 +1,103 @@
+---
+
+- name: Ensuring the "{{ outer_item[0].name }}" project's "{{ secgroup_item.name }}" security group for project exists
+  shell: |
+    openstack security group list \
+     --project "{{ outer_item[0].name }}" \
+     --project-domain "{{ osp_domain_admin_domain_vars.domain_name }}" \
+     -f value \
+     -c Name \
+    | egrep "^{{ secgroup_item.name }}$" \
+    | head -n 1 \
+    | egrep "^{{ secgroup_item.name }}$"
+  register: secgroup_exist_check
+  changed_when: false
+  failed_when: false
+
+- name: If secgroup does not exist, creating the "{{ secgroup_item.name }}" security group for "{{ outer_item[0].name }}" project
+  shell: |
+    openstack security group create "{{ secgroup_item.name }}" \
+      --project "{{ outer_item[0].name }}" \
+      --project-domain "{{ osp_domain_admin_domain_vars.domain_name }}";
+  when: secgroup_exist_check.rc != 0
+
+- name: Determining the ID of the "{{ secgroup_item.name }}" security group of the "{{ outer_item[0].name }}" project
+  shell: |
+    openstack security group list \
+      --project "{{ outer_item[0].name }}" \
+      --project-domain "{{ osp_domain_admin_domain_vars.domain_name }}" \
+      -f value \
+      -c ID \
+      -c Name \
+    | egrep "\s*{{ secgroup_item.name }}$" \
+    | head -n 1 \
+    | grep -oP ".*(?=(\s*{{ secgroup_item.name }}$))";
+  register: secgroup_id
+  changed_when: false
+
+- name: Checking the "{{ secgroup_item.name }}" security group's description for the "{{ outer_item[0].name }}" project
+  shell: |
+    openstack security group show "{{ secgroup_id.stdout }}" \
+      -f value \
+      -c description \
+    | egrep "^{{ secgroup_item.description }}$"
+  register: secgroup_description_check
+  changed_when: false
+  failed_when: false
+
+- name: Updating the "{{ secgroup_item.name }}" security group's description for the "{{ outer_item[0].name }}" project, if required
+  shell: |
+    openstack security group set "{{ secgroup_id.stdout }}" \
+      --description "{{ secgroup_item.description }}"
+  when: secgroup_description_check.rc != 0
+
+- name: Validating that the project's "{{ secgroup_item.name }}" security group's firewall by-IP-rules are defined and up-to-date for the "{{ outer_item[0].name }}" project
+  shell: | 
+    openstack security group rule create \
+      --project "{{ outer_item[0].name }}" \
+      --project-domain "{{ osp_domain_admin_domain_vars.domain_name }}" \
+      --ethertype "{{ item.ethertype }}" \
+      --protocol "{{ item.protocol }}" \
+      --{{ item.direction }} \
+      {{ item.remote_ip_flag | default('') }} \
+      {{ item.port_range_flag | default('') }} \
+      {{ item.remote_group_flag | default('') }} \
+      {{ secgroup_id.stdout }};
+  with_items:
+    - "{{ secgroup_item.ip_rules }}"
+  register: secgroup_add_iprules
+  changed_when: "'created_at' in secgroup_add_iprules.stdout"
+  failed_when: "'(HTTP 400)' in secgroup_add_iprules.stderr"
+  when: secgroup_item.ip_rules is defined
+
+- name: Validating that the "{{ outer_item[0].name }}" project's "{{ secgroup_item.name }}" security group's firewall by-secgroup-rules are defined and up-to-date 
+  shell: | 
+    openstack security group list \
+      --project "{{ outer_item[0].name }}" \
+      --project-domain "{{ osp_domain_admin_domain_vars.domain_name }}" \
+      -f value \
+      -c ID \
+      -c Name \
+    | egrep "\s*{{ item.remote_group }}$" \
+    | head -n 1 \
+    | grep -oP ".*(?=(\s*{{ item.remote_group }}$))" \
+    | while read remote_group_id
+      do
+        openstack security group rule create \
+          --project "{{ outer_item[0].name }}" \
+          --project-domain "{{ osp_domain_admin_domain_vars.domain_name }}" \
+          --ethertype "{{ item.ethertype }}" \
+          --protocol "{{ item.protocol }}" \
+          --remote-group "$remote_group_id" \
+          --{{ item.direction }} \
+          {{ item.port_range_flag | default('') }} \
+          {{ item.remote_group_flag | default('') }} \
+          {{ secgroup_id.stdout }};
+      done
+  with_items:
+    - "{{ secgroup_item.secgroup_rules }}"
+  register: secgroup_add_secgrouprules
+  changed_when: "'created_at' in secgroup_add_secgrouprules.stdout"
+  failed_when: "'(HTTP 400)' in secgroup_add_secgrouprules.stderr"
+  when: secgroup_item.secgroup_rules is defined
+...

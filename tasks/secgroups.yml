@@ -1,0 +1,8 @@
+---
+- name: Perform security group tasks
+  include_tasks: secgroups-tasks.yml
+  with_items:
+    - "{{ osp_domain_admin_managed_secgroups }}"
+  loop_control:
+    loop_var: secgroup_item
+...

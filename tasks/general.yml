@@ -1,0 +1,7 @@
+---
+- name: Validating domain project "{{ outer_item[0].name }}"
+  os_project:
+    endpoint_type: admin
+    name: "{{ outer_item[0].name }}"
+    domain: "{{ osp_domain_admin_domain_vars.domain_name }}"
+    description: "{{ outer_item[0].description }}"

@@ -1,0 +1,125 @@
+---
+# defaults file for osp-domain-admin
+project_scope: all
+task_scope: all
+osp_domain_admin_managed_secgroups:
+  - name: "default"
+    description: "allows all egress traffic and minimum-recommended ingress traffic (domain-admin managed secgroup)"
+    ip_rules:
+    - { protocol: tcp,  direction: egress,  ethertype: IPv4, remote_ip_flag: "--remote-ip 0.0.0.0/0" }
+    - { protocol: udp,  direction: egress,  ethertype: IPv4, remote_ip_flag: "--remote-ip 0.0.0.0/0" }
+    - { protocol: icmp, direction: egress,  ethertype: IPv4, remote_ip_flag: "--remote-ip 0.0.0.0/0" }
+    - { protocol: tcp,  direction: egress,  ethertype: IPv6, remote_ip_flag: "--remote-ip ::/0" }
+    - { protocol: udp,  direction: egress,  ethertype: IPv6, remote_ip_flag: "--remote-ip ::/0" }
+    - { protocol: icmp, direction: egress,  ethertype: IPv6, remote_ip_flag: "--remote-ip ::/0" }
+    - { protocol: icmp, direction: ingress, ethertype: IPv4, remote_ip_flag: "--remote-ip 0.0.0.0/0" }
+    - { protocol: icmp, direction: ingress, ethertype: IPv6, remote_ip_flag: "--remote-ip ::/0" }
+    - { protocol: tcp,  direction: ingress, ethertype: IPv4, remote_ip_flag: "--remote-ip 0.0.0.0/0", port_range_flag: "--dst-port 22" }
+    - { protocol: tcp,  direction: ingress, ethertype: IPv6, remote_ip_flag: "--remote-ip ::/0",      port_range_flag: "--dst-port 22" }
+    - { protocol: tcp,  direction: ingress, ethertype: IPv4, remote_ip_flag: "--remote-ip 0.0.0.0/0", port_range_flag: "--dst-port 3389" }
+    - { protocol: tcp,  direction: ingress, ethertype: IPv6, remote_ip_flag: "--remote-ip ::/0",      port_range_flag: "--dst-port 3389" }
+    secgroup_rules:
+    - { protocol: tcp,  direction: ingress, ethertype: IPv4, remote_group: "default" }
+    - { protocol: udp,  direction: ingress, ethertype: IPv4, remote_group: "default" }
+    - { protocol: icmp, direction: ingress, ethertype: IPv4, remote_group: "default" }
+    - { protocol: tcp,  direction: ingress, ethertype: IPv6, remote_group: "default" }
+    - { protocol: udp,  direction: ingress, ethertype: IPv6, remote_group: "default" }
+    - { protocol: icmp, direction: ingress, ethertype: IPv6, remote_group: "default" }
+  - name: "open"
+    description: "allows all egress and ingress traffic (domain-admin managed secgroup)"
+    ip_rules:
+    - { protocol: tcp,  direction: egress,  ethertype: IPv4, remote_ip_flag: "--remote-ip 0.0.0.0/0" }
+    - { protocol: udp,  direction: egress,  ethertype: IPv4, remote_ip_flag: "--remote-ip 0.0.0.0/0" }
+    - { protocol: icmp, direction: egress,  ethertype: IPv4, remote_ip_flag: "--remote-ip 0.0.0.0/0" }
+    - { protocol: tcp,  direction: egress,  ethertype: IPv6, remote_ip_flag: "--remote-ip ::/0" }
+    - { protocol: udp,  direction: egress,  ethertype: IPv6, remote_ip_flag: "--remote-ip ::/0" }
+    - { protocol: icmp, direction: egress,  ethertype: IPv6, remote_ip_flag: "--remote-ip ::/0" }
+    - { protocol: tcp,  direction: ingress, ethertype: IPv4, remote_ip_flag: "--remote-ip 0.0.0.0/0" }
+    - { protocol: udp,  direction: ingress, ethertype: IPv4, remote_ip_flag: "--remote-ip 0.0.0.0/0" }
+    - { protocol: icmp, direction: ingress, ethertype: IPv4, remote_ip_flag: "--remote-ip 0.0.0.0/0" }
+    - { protocol: tcp,  direction: ingress, ethertype: IPv6, remote_ip_flag: "--remote-ip ::/0" }
+    - { protocol: udp,  direction: ingress, ethertype: IPv6, remote_ip_flag: "--remote-ip ::/0" }
+    - { protocol: icmp, direction: ingress, ethertype: IPv6, remote_ip_flag: "--remote-ip ::/0" }
+osp_domain_admin_managed_quota_flavors:
+    - name: "flavors"
+      public_images_curator:
+      - network: 0
+        router: 0
+        subnet: 0
+        port: 0
+        instances: 0
+        cores: 0
+        ram: 0
+        fixed_ips: 0
+        floating_ips: 0
+        floatingip: 0
+        volumes: 0
+        volumes_lvm: 0
+        gigabytes: 0
+        gigabytes_lvm: 0
+        snapshots: 0
+        snapshots_lvm: 0
+        key_pairs: 0
+        security_group: 2
+        security_group_rule: 100
+      small:
+      - network: 1
+        router: 1
+        subnet: 1
+        port: 64
+        instances: 16
+        cores: 16
+        ram: 32768
+        fixed_ips: 64
+        floating_ips: 16
+        floatingip: 16
+        volumes: 16
+        volumes_lvm: 16
+        gigabytes: 640
+        gigabytes_lvm: 640
+        snapshots: 32
+        snapshots_lvm: 32
+        key_pairs: 100
+        security_group: 100
+        security_group_rule: 1000
+      medium:
+      - network: 10
+        router: 10
+        subnet: 10
+        port: 128
+        instances: 32
+        cores: 32
+        ram: 65536
+        fixed_ips: 128
+        floating_ips: 32
+        floatingip: 32
+        volumes: 32
+        volumes_lvm: 32
+        gigabytes: 1280
+        gigabytes_lvm: 1280
+        snapshots: 64
+        snapshots_lvm: 64
+        key_pairs: 100
+        security_group: 100
+        security_group_rule: 1000
+      large:
+      - network: 20
+        router: 20
+        subnet: 20
+        port: 256
+        instances: 64
+        cores: 64
+        ram: 131072
+        fixed_ips: 256
+        floating_ips: 64
+        floatingip: 64
+        volumes: 64
+        volumes_lvm: 64
+        gigabytes: 2560
+        gigabytes_lvm: 2560
+        snapshots: 128
+        snapshots_lvm: 128
+        key_pairs: 100
+        security_group: 100
+        security_group_rule: 1000
+...

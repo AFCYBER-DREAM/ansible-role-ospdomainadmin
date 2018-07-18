@@ -1,0 +1,9 @@
+---
+- name: Validating that the domain-specific admin group "{{ osp_domain_admin_domain_vars.domain_admin_group }}" from Active Directory is assigned the "{{ admin_role.role }}" role for project "{{ outer_item[0].name }}"
+  os_user_role:
+    endpoint_type: admin
+    group: "{{ osp_domain_admin_domain_vars.domain_admin_group }}"
+    project: "{{ outer_item[0].name }}"
+    role: "{{ admin_role.role }}"
+
+...

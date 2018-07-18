@@ -1,0 +1,31 @@
+---
+
+- name: Setting up quotas on "{{ outer_item[0].name }}" using quota flavor "{{ quota_flavor }}"
+  os_quota:
+    name: "{{ outer_item[0].name }}"
+    network: "{{ item.1.network }}"
+    router: "{{ item.1.router }}"
+    subnet: "{{ item.1.subnet }}"
+    port: "{{ item.1.port }}"
+    instances: "{{ item.1.instances }}"
+    cores: "{{ item.1.cores }}"
+    ram: "{{ item.1.ram }}"
+    fixed_ips: "{{ item.1.fixed_ips }}"
+    floating_ips: "{{ item.1.floating_ips }}"
+    floatingip: "{{ item.1.floatingip }}"
+    volumes: "{{ item.1.volumes }}"
+    volumes_types:
+      volumes_lvm: "{{ item.1.volumes_lvm }}"
+    gigabytes: "{{ item.1.gigabytes }}"
+    gigabytes_types:
+      gigabytes_lvm: "{{ item.1.gigabytes_lvm }}"
+    snapshots: "{{ item.1.snapshots }}"
+    snapshots_types:
+      snapshots_lvm: "{{ item.1.snapshots_lvm }}"
+    key_pairs: "{{ item.1.key_pairs }}"
+    security_group: "{{ item.1.security_group }}"
+    security_group_rule: "{{ item.1.security_group_rule }}"
+  with_subelements:
+    - "{{ osp_domain_admin_managed_quota_flavors }}"
+    - "{{ quota_flavor }}"
+...

@@ -1,0 +1,8 @@
+---
+- name: Validating that the project-specific member group "{{ outer_item[0].group.lower() }}" from Active Directory is assigned the "{{ member_role.role }}" role for project "{{ outer_item[0].name }}"
+  os_user_role:
+    endpoint_type: admin
+    group: "{{ outer_item[0].group }}"
+    project: "{{ outer_item[0].name }}"
+    role: "{{ member_role.role }}"
+...

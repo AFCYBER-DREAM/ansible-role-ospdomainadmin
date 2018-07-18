@@ -1,0 +1,8 @@
+---
+- name: Setting up 
+  include_tasks: quotas-tasks.yml
+  with_items:
+    - "{{ outer_item[0].quota_flavor }}"
+  loop_control:
+    loop_var: quota_flavor
+...

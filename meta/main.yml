@@ -1,0 +1,25 @@
+galaxy_info:
+  author: Development Range Engineering, Architecture, and Modernization (DREAM) Team
+  description: Role designed to assist in the administration of an OpenStack installation
+  company: AFCYBER
+  license: MIT
+  min_ansible_version: 2.0
+
+  platforms:
+  - name: EL
+    versions:
+    - all
+  - name: Fedora
+    versions:
+    - all
+  - name: Ubuntu
+    versions:
+    - all
+  - name: Debian
+    versions:
+    - all
+
+  galaxy_tags: []
+
+dependencies: []
+

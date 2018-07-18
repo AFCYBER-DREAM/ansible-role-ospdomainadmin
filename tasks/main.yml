@@ -1,0 +1,35 @@
+---
+# tasks file for osp-domain-admin
+
+# Checking OSP-related Bash environment variables
+- name: Getting current OSP-related Bash env vars (except ${OS_PASSWORD})
+  shell: "env | grep OS_ | egrep -v OS_PASSWORD"
+  register: osp_admin_vars
+  changed_when: false
+- name: Printing current OSP-related Bash env vars (for debugging, if required)
+  debug:
+    var: osp_admin_vars.stdout_lines
+  changed_when: false
+- name: Pausing so you can review these env variables to ensure you want to continue
+  pause:
+    seconds: 10
+  changed_when: false
+- name: Ensuring authentication can occur with current OSP-related Bash env vars
+  os_auth:
+    auth_type: password
+  changed_when: false
+
+- name: Validating each project's configurations
+  include_tasks: "{{ outer_item[1] }}.yml"
+  with_nested:
+    - "{{ osp_domain_admin_project_vars }}"
+    - [ 'general', 'users', 'networking', 'secgroups', 'quotas' ]
+  loop_control:
+    loop_var: outer_item
+  when: 
+    - ( task_scope == outer_item[1] and project_scope == outer_item[0].name ) or
+      ( project_scope == "all" and task_scope == outer_item[1] ) or
+      ( project_scope == outer_item[0].name and task_scope == "all" )
+    - ( lookup('env', 'OS_IDENTITY_API_VERSION') == '3' )
+    - ( osp_domain_admin_domain_vars.domain_type == "active directory" )
+...

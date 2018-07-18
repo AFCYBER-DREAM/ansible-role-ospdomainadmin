@@ -1,0 +1,18 @@
+---
+- name: Validating that the project-specific member group "{{ outer_item[0].group.lower() }}" from Active Directory is assigned the appropriate roles for project "{{ outer_item[0].name }}"
+  include_tasks: users-tasks-for-members.yml
+  with_items:
+    - { role: "_member_" }
+    - { role: "swiftoperator" }
+  loop_control:
+    loop_var: member_role
+
+- name: Validating that the domain-specific admin group "{{ outer_item[0].group.lower() }}" from Active Directory is assigned the appropriate roles for project "{{ outer_item[0].name }}"
+  include_tasks: users-tasks-for-admins.yml
+  with_items:
+    - { role: "admin" }
+    - { role: "ResellerAdmin" }
+  loop_control:
+    loop_var: admin_role
+
+...

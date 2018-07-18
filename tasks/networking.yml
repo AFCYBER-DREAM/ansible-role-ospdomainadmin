@@ -1,0 +1,33 @@
+---
+- name: Performing networking tasks only if "{{ outer_item[0].name }}" has "use_default_networking" set to true
+  block:
+
+  - name: Ensuring existence of the "{{ outer_item[0].name }}" project's primary, private network
+    os_network:
+      endpoint_type: public
+      project: "{{ outer_item[0].name }}"
+      name: "{{ outer_item[0].name }}-private-network"
+  
+  - name: Ensuring existence of the "{{ outer_item[0].name }}" project's primary, private network's subnet
+    os_subnet:
+      endpoint_type: public
+      project: "{{ outer_item[0].name }}"
+      name: "{{ outer_item[0].name }}-private-subnet"
+      network_name: "{{ outer_item[0].name }}-private-network"
+      cidr: "{{ osp_domain_admin_domain_vars.default_project_network_cidr }}"
+      enable_dhcp: true
+      dns_nameservers: "{{ osp_domain_admin_domain_vars.default_project_network_nameservers }}"
+  
+  - name: Validating each projects' primary, private subnet's router's settings
+    os_router:
+      endpoint_type: public
+      project: "{{ outer_item[0].name }}"
+      name: "{{ outer_item[0].name }}-private-router"
+      network: public
+      external_fixed_ips:
+        - subnet: public
+      interfaces:
+        - "{{ outer_item[0].name }}-private-subnet"
+
+  when: outer_item[0].use_default_networking == true
+...
